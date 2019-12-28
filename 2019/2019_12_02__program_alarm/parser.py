@@ -13,3 +13,20 @@ def parseInput(stringFormattedInput):
   for item in arrayFormattedInput:
     arrayIntegerInput.append(int(item))
   return arrayIntegerInput
+
+
+def readInFile(filename):
+  try:
+    f = open(filename, "r")
+    if f.mode == "r":
+      contents = f.read()
+      return contents
+  except:
+    print("That file does not exist")
+    return None
+
+def sanitizeInput(filename):
+  contents = readInFile(filename)
+  if not contents:
+    return None
+  return parseInput(contents)

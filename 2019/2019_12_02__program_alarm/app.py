@@ -1,54 +1,61 @@
-import parser # * bespoke parser module for this problem
-import operations
-
-GOAL_OUTPUT = 19690720
+import parser # bespoke parser module for this problem
+import spaceshipComputer as comp # logic module
 
 def main():
-  contents = readInFile("puzzle_input")
-  initialMemoryState = parser.parseInput(contents)
-  print(f"INITTIAL MEMORY STATE: {initialMemoryState}")
+  menu()
 
-  noun= 0
-  verb = 0
-  output = None
-  testNumber = 0
+def menu():
+  userChoice = True
+  while userChoice:
+    print("**********MENU**********\n"
+        "1) Obtain results from a specific instruction set\n"
+        "2) Find the requested product of the required inputs to reach a specific output\n"
+        "3) Exit")
+    userChoice = input("Please select an option: ")
 
-  for i in range (0, 99):
-    for j in range (0, 99):
-      testArray = initialMemoryState.copy()
-      operations.preparations(testArray,j,i)
-      result = operations.reader(testArray)
-      output= result[0]
-      if output == GOAL_OUTPUT: break
-    if output == GOAL_OUTPUT: break
+    if userChoice == "1":
+      filename = input("Filename: ")
+      answer = calculateIntcodeResult(filename)
+      if not answer:
+        print("ERROR")
+      else:
+        print(f"ANSWER: {answer}")
 
-  # while output != GOAL_OUTPUT:
-  #   testArray = initialMemoryState.copy()
-  #   testArray = operations.preparations(testArray, noun, verb)
-  #   result = operations.reader(testArray)
-  #   output = result[0]
-  #   print(f"TEST NUMBER: {testNumber}, OUTPUT: {output}")
-  #   if noun < 99:
-  #     noun += 1
-  #   elif verb < 99:
-  #     verb += 1
-  #   else: break
+    elif userChoice == "2":
+      filename = input("Filename: ")
+      desiredResult= input("Desired result: ")
+      result = determineNecessaryInputs(filename, desiredResult)
+      if not result:
+        print("ERROR")
+      else:
+        noun = result["noun"]
+        verb = result["verb"]
+        answer = 100 * noun + verb
+        print(f"Answer: {answer}")
 
-  #   testNumber += 1
+    elif userChoice == "3":
+      print("exiting...")
+      return 0
 
-  if output == GOAL_OUTPUT:
-    print("success!")
-    print(f"Noun: {j}, Verb: {i}")
-    answer = 100 * j + i
-    print(f"ANSWER: {answer}")
-  else:
-    print("failure")
+    elif userChoice != "":
+      print("Invalid choice. Please try again.")
 
-def readInFile(filename):
-  f = open(filename, "r")
-  if f.mode == "r":
-    contents = f.read()
-  return contents
+def calculateIntcodeResult(filename):
+  initialMemoryState = parser.sanitizeInput(filename)
+  if not initialMemoryState:
+    return None
+  comp.replaceInitialAddresses(initialMemoryState)
+  finalMemoryState = comp.executeInstructions(initialMemoryState)
+  return finalMemoryState[0]
+
+def determineNecessaryInputs(filename, desiredResult):
+  initialMemoryState = parser.sanitizeInput(filename)
+  if not initialMemoryState:
+    return None
+  answer = comp.testInputs(initialMemoryState, int(desiredResult))
+  if not answer:
+    print("No combination of inputs will produce that ouput")
+  return answer
 
 if __name__ == "__main__":
   main()
