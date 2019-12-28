@@ -1,0 +1,10 @@
+Objective: determine the sum of fuel requirements for all modules on my
+spacecraft.
+
+Specifics:
+- fuel rq'd is bassed on module mass determined by:
+      [ floored (mass / 3) ] - 2
+- total fuel requirement is the sum of all fuel rq'd by modules
+
+Input:
+- list of integers separated by newlines
